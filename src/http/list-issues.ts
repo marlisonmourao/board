@@ -1,0 +1,20 @@
+import { IssuesListResponseSchema } from "@/api/routes/list-issues"
+import { clientEnv } from "@/env"
+
+interface ListIssueParams {
+  search?: string
+}
+
+export async function listIssues({ search }: ListIssueParams = {}) {
+  const url = new URL("/api/issues", clientEnv.NEXT_PUBLIC_API_URL)
+
+  if (search) {
+    url.searchParams.set("search", search)
+  }
+
+  const response = await fetch(url)
+
+  const data = await response.json()
+
+  return IssuesListResponseSchema.parse(data)
+}
