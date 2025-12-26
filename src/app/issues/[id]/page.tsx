@@ -1,16 +1,12 @@
-import { Button } from "@/components/button"
 import { Input } from "@/components/input"
+import { Skeleton } from "@/components/skeleton"
 import { getIssue } from "@/http/get-issue"
-import {
-  ArchiveIcon,
-  MessageCirclePlusIcon,
-  MoveLeftIcon,
-  ThumbsUpIcon,
-} from "lucide-react"
+import { ArchiveIcon, MessageCirclePlusIcon, MoveLeftIcon } from "lucide-react"
 import Link from "next/link"
 import { Suspense } from "react"
 import { IssueCommentList } from "./comment/issue-comment-list"
 import { IssueCommentSkeleton } from "./comment/issue-comment-skeleton"
+import { IssueLikeButton } from "./issue-like-button"
 
 interface IssuePageProps {
   params: Promise<{ id: string }>
@@ -54,11 +50,9 @@ export default async function IssuePage({ params }: IssuePageProps) {
           {statusLabels[issue.status]}
         </span>
 
-        <Button>
-          <ThumbsUpIcon className="size-3" />
-
-          <span className="text-sm">12</span>
-        </Button>
+        <Suspense fallback={<Skeleton className="h-7 w-16" />}>
+          <IssueLikeButton issueId={id} />
+        </Suspense>
       </div>
 
       <div className="space-y-2">
