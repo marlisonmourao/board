@@ -1,12 +1,11 @@
-import { Input } from "@/components/input"
-import { Skeleton } from "@/components/skeleton"
-import { getIssue } from "@/http/get-issue"
-import { ArchiveIcon, MessageCirclePlusIcon, MoveLeftIcon } from "lucide-react"
-import Link from "next/link"
-import { Suspense } from "react"
-import { IssueCommentList } from "./comment/issue-comment-list"
-import { IssueCommentSkeleton } from "./comment/issue-comment-skeleton"
-import { IssueLikeButton } from "./issue-like-button"
+import { Input } from '@/components/input'
+import { getIssue } from '@/http/get-issue'
+import { ArchiveIcon, MessageCirclePlusIcon, MoveLeftIcon } from 'lucide-react'
+import Link from 'next/link'
+import { Suspense } from 'react'
+import { IssueCommentList } from './comment/issue-comment-list'
+import { IssueCommentSkeleton } from './comment/issue-comment-skeleton'
+import { IssueLikeButton } from './issue-like-button'
 
 interface IssuePageProps {
   params: Promise<{ id: string }>
@@ -23,10 +22,10 @@ export const generateMetadata = async ({ params }: IssuePageProps) => {
 }
 
 const statusLabels = {
-  backlog: "Backlog",
-  todo: "To Do",
-  in_progress: "In Progress",
-  done: "Done",
+  backlog: 'Backlog',
+  todo: 'To Do',
+  in_progress: 'In Progress',
+  done: 'Done',
 } as const
 
 export default async function IssuePage({ params }: IssuePageProps) {
@@ -50,9 +49,7 @@ export default async function IssuePage({ params }: IssuePageProps) {
           {statusLabels[issue.status]}
         </span>
 
-        <Suspense fallback={<Skeleton className="h-7 w-16" />}>
-          <IssueLikeButton issueId={id} />
-        </Suspense>
+        <IssueLikeButton issueId={id} />
       </div>
 
       <div className="space-y-2">
