@@ -1,15 +1,19 @@
-import { IssuesListResponseSchema } from "@/api/routes/list-issues"
-import { clientEnv } from "@/env"
+import { IssuesListResponseSchema } from '@/api/routes/list-issues'
+import { clientEnv } from '@/env'
+import { cacheLife } from 'next/cache'
 
 interface ListIssueParams {
   search?: string
 }
 
 export async function listIssues({ search }: ListIssueParams = {}) {
-  const url = new URL("/api/issues", clientEnv.NEXT_PUBLIC_API_URL)
+  'use cache'
+
+  cacheLife('default')
+  const url = new URL('/api/issues', clientEnv.NEXT_PUBLIC_API_URL)
 
   if (search) {
-    url.searchParams.set("search", search)
+    url.searchParams.set('search', search)
   }
 
   const response = await fetch(url)

@@ -3,6 +3,7 @@ import 'server-only'
 import { CommentSchema } from '@/api/routes/create-comment'
 import { clientEnv } from '@/env'
 
+import { updateTag } from 'next/cache'
 import { headers } from 'next/headers'
 import { getCookiesFromHeaders } from './utils/get-cookies-from-headers'
 
@@ -26,6 +27,8 @@ export async function createCommente({ issueId, text }: CreateCommenteParams) {
   })
 
   const data = await response.json()
+
+  updateTag(`${issueId}-comments`)
 
   return CommentSchema.parse(data)
 }

@@ -1,17 +1,26 @@
-"use client"
+'use client'
 
-import { authClient } from "@/lib/auth-client"
-import { Loader2, LogInIcon } from "lucide-react"
+import { authClient } from '@/lib/auth-client'
+import { Loader2, LogInIcon } from 'lucide-react'
+import { useRouter } from 'next/router'
 
 export function UserButton() {
+  const router = useRouter()
+
   const { data: session, isPending } = authClient.useSession()
 
   async function handleSignin() {
-    await authClient.signIn.social({ provider: "github", callbackURL: "/" })
+    await authClient.signIn.social({ provider: 'github', callbackURL: '/' })
   }
 
   async function handleSignout() {
-    await authClient.signOut()
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push('/')
+        },
+      },
+    })
   }
 
   return (
@@ -29,7 +38,7 @@ export function UserButton() {
           >
             {/** biome-ignore lint/performance/noImgElement: github optimize the image */}
             <img
-              src={session.user.image ?? ""}
+              src={session.user.image ?? ''}
               alt={session.user.name}
               className="size-8 rounded-full"
             />
