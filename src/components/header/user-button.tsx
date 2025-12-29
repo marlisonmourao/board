@@ -2,7 +2,7 @@
 
 import { authClient } from '@/lib/auth-client'
 import { Loader2, LogInIcon } from 'lucide-react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export function UserButton() {
   const router = useRouter()
