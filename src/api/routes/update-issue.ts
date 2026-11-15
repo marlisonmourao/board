@@ -2,7 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { eq } from "drizzle-orm"
 import type { AuthSession } from "../auth"
 import { db } from "../db"
-import { comments, issues, issueActivity, users } from "../db/schema"
+import { comments, issues, issueActivity, issueLikes, users } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
 import { LabelsSchema, DueDateSchema } from "@/lib/issue-planning"
@@ -130,6 +130,7 @@ export const updateIssue = app.openapi(route, async (c) => {
   }
 
   const commentCount = await db.$count(comments, eq(comments.issueId, id))
+  const likeCount = await db.$count(issueLikes, eq(issueLikes.issueId, id))
 
   return c.json(
     {
@@ -142,7 +143,7 @@ export const updateIssue = app.openapi(route, async (c) => {
       assigneeId: issue.assigneeId,
       labels: issue.labels,
       dueDate: issue.dueDate,
-      likes: issue.likes,
+      likes: likeCount,
       comments: commentCount,
       createdAt: issue.createdAt.toISOString(),
     },

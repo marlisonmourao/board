@@ -65,6 +65,7 @@ export function LikeButton({
         }
       }
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['issue-likes'] }),
   })
 
   const liked = initialLiked

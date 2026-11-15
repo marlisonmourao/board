@@ -58,7 +58,6 @@ async function main() {
   for (let i = 0; i < 25; i++) {
     const randomTitle =
       issueNames[Math.floor(Math.random() * issueNames.length)]
-    const randomLikes = Math.floor(Math.random() * 21) // 0-20
     const statuses = ["backlog", "todo", "in_progress", "done"] as const
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)]
 
@@ -68,7 +67,6 @@ async function main() {
         title: randomTitle,
         description: `Descrição para: ${randomTitle}.`,
         status: randomStatus,
-        likes: randomLikes,
       })
       .returning()
 
@@ -88,7 +86,6 @@ async function main() {
   // Insert 25 issues
   for (let i = 0; i < 25; i++) {
     const randomTitle = faker.helpers.arrayElement(issueNames)
-    const randomLikes = faker.number.int({ min: 0, max: 20 })
     const randomStatus = faker.helpers.arrayElement(statuses)
 
     const [issue] = await db
@@ -97,7 +94,6 @@ async function main() {
         title: randomTitle,
         description: faker.lorem.paragraph(),
         status: randomStatus,
-        likes: randomLikes,
       })
       .returning()
 

@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import type { AuthSession } from '../auth'
 import { db } from '../db'
 import { issueLikes, issues } from '../db/schema'
@@ -64,10 +64,21 @@ export const toggleIssueLike = app.openapi(route, async (c) => {
   const { id } = c.req.valid('param')
   const user = c.get('user')
 
-  // Check if issue exists
-  const [issue] = await db.select().from(issues).where(eq(issues.id, id))
+  const result = await db.transaction(async (tx) => {
+    const [issue] = await tx.select({ id: issues.id }).from(issues).where(eq(issues.id, id)).for('update')
+    if (!issue) return null
+    const [existingLike] = await tx.select({ id: issueLikes.id }).from(issueLikes)
+      .where(and(eq(issueLikes.issueId, id), eq(issueLikes.userId, user!.id)))
+    if (existingLike) {
+      await tx.delete(issueLikes).where(eq(issueLikes.id, existingLike.id))
+    } else {
+      await tx.insert(issueLikes).values({ issueId: id, userId: user!.id })
+    }
+    const likes = await tx.$count(issueLikes, eq(issueLikes.issueId, id))
+    return { id, likes, liked: !existingLike }
+  })
 
-  if (!issue) {
+  if (!result) {
     return c.json(
       {
         error: 'Issue not found',
@@ -77,50 +88,5 @@ export const toggleIssueLike = app.openapi(route, async (c) => {
     )
   }
 
-  // Check if user already liked this issue
-  const [existingLike] = await db
-    .select()
-    .from(issueLikes)
-    .where(and(eq(issueLikes.issueId, id), eq(issueLikes.userId, user!.id)))
-
-  let liked = false
-
-  if (existingLike) {
-    // Unlike: remove the like
-    await db
-      .delete(issueLikes)
-      .where(and(eq(issueLikes.issueId, id), eq(issueLikes.userId, user!.id)))
-
-    await db
-      .update(issues)
-      .set({ likes: sql`${issues.likes} - 1` })
-      .where(eq(issues.id, id))
-
-    liked = false
-  } else {
-    // Like: add the like
-    await db.insert(issueLikes).values({
-      issueId: id,
-      userId: user!.id,
-    })
-
-    await db
-      .update(issues)
-      .set({ likes: sql`${issues.likes} + 1` })
-      .where(eq(issues.id, id))
-
-    liked = true
-  }
-
-  // Get updated issue
-  const [updatedIssue] = await db.select().from(issues).where(eq(issues.id, id))
-
-  return c.json(
-    {
-      id: updatedIssue.id,
-      likes: updatedIssue.likes,
-      liked,
-    },
-    200,
-  )
+  return c.json(result, 200)
 })

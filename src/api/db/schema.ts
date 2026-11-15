@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core"
 
@@ -74,7 +75,7 @@ export const issueLikes = pgTable("issue_likes", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp().notNull().defaultNow(),
-})
+}, (table) => [uniqueIndex('issue_likes_issue_user_unique').on(table.issueId, table.userId)])
 
 // Better Auth tables (plural names)
 export const users = pgTable("users", {

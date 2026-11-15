@@ -109,7 +109,7 @@ export const createIssue = app.openapi(route, async (c) => {
       assigneeId: issue.assigneeId,
       labels: issue.labels,
       dueDate: issue.dueDate,
-      likes: issue.likes,
+      likes: 0,
       comments: 0,
       createdAt: issue.createdAt.toISOString(),
     },

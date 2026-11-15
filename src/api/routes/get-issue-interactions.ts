@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { and, eq, inArray } from "drizzle-orm"
+import { and, eq, inArray, sql } from "drizzle-orm"
 import type { AuthSession } from "../auth"
 import { db } from "../db"
 import { issueLikes, issues } from "../db/schema"
@@ -50,7 +50,7 @@ export const getIssueInteractions = new OpenAPIHono<{
   const issuesData = await db
     .select({
       id: issues.id,
-      likes: issues.likes,
+      likes: sql<number>`(select count(*)::int from issue_likes where issue_likes.issue_id = ${issues.id})`,
     })
     .from(issues)
     .where(inArray(issues.id, issueIdArray))
