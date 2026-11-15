@@ -4,9 +4,10 @@ import type { IssuesListResponseSchema } from '@/api/routes/list-issues'
 import { Card } from '@/components/card'
 import { LikeButton } from '@/components/like-button'
 import { Section } from '@/components/section'
+import { Select } from '@/components/select'
 import { IssueStatusSelect } from '@/components/issue-status-select'
 import { getIssueStatus, issueStatusOptions } from '@/lib/issue-status'
-import { getIssuePriority } from '@/lib/issue-priority'
+import { getIssuePriority, issuePriorityOptions } from '@/lib/issue-priority'
 import { getIssueInteractions } from '@/http/get-issue-interections'
 import { useQuery } from '@tanstack/react-query'
 import { Archive, MessageCircle } from 'lucide-react'
@@ -19,14 +20,23 @@ interface BoardContentProps {
 }
 
 export function BoardContent({ issues }: BoardContentProps) {
+  const [priorityFilter, setPriorityFilter] = useState('')
+  const [assigneeFilter, setAssigneeFilter] = useState('')
+  const allIssues = issueStatusOptions.flatMap((status) => issues[status.value])
+  const assignees = Array.from(new Map(allIssues.flatMap((issue) => issue.assignee ? [[issue.assignee.id, issue.assignee] as const] : [])).values())
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR') || a.id.localeCompare(b.id))
+  const filteredIssues = Object.fromEntries(issueStatusOptions.map(({ value }) => [value, issues[value].filter((issue) =>
+    (!priorityFilter || issue.priority === priorityFilter) &&
+    (!assigneeFilter || (assigneeFilter === 'unassigned' ? !issue.assignee : issue.assignee?.id === assigneeFilter)),
+  )])) as typeof issues
   const [activeStatus, setActiveStatus] = useState<(typeof issueStatusOptions)[number]['value']>(
     () => issueStatusOptions.find((status) => issues[status.value].length > 0)?.value ?? 'backlog',
   )
   const allIssuesIds = [
-    ...issues.backlog.map((issue) => issue.id),
-    ...issues.todo.map((issue) => issue.id),
-    ...issues.in_progress.map((issue) => issue.id),
-    ...issues.done.map((issue) => issue.id),
+    ...filteredIssues.backlog.map((issue) => issue.id),
+    ...filteredIssues.todo.map((issue) => issue.id),
+    ...filteredIssues.in_progress.map((issue) => issue.id),
+    ...filteredIssues.done.map((issue) => issue.id),
   ]
 
   const { data: interactionsData } = useQuery({
@@ -45,10 +55,26 @@ export function BoardContent({ issues }: BoardContentProps) {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="space-y-1 text-xs text-navy-200">Prioridade
+          <Select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="h-10 w-full min-w-40 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
+            <option value="">Todas as prioridades</option>
+            {issuePriorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </Select>
+        </label>
+        <label className="space-y-1 text-xs text-navy-200">Responsável
+          <Select value={assigneeFilter} onChange={(event) => setAssigneeFilter(event.target.value)} className="h-10 w-full min-w-44 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
+            <option value="">Todos os responsáveis</option>
+            <option value="unassigned">Sem responsável</option>
+            {assignees.map((person) => <option key={person.id} value={person.id}>{person.name}{assignees.filter((other) => other.name === person.name).length > 1 ? ` (${person.id.slice(0, 8)})` : ''}</option>)}
+          </Select>
+        </label>
+        {(priorityFilter || assigneeFilter) && <button type="button" onClick={() => { setPriorityFilter(''); setAssigneeFilter('') }} className="rounded-md px-3 py-2 text-sm text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Limpar filtros</button>}
+      </div>
       <nav aria-label="Filtrar issues por estado" className="flex gap-2 overflow-x-auto pb-1 md:hidden">
         {issueStatusOptions.map((status) => {
           const active = activeStatus === status.value
-          const count = issues[status.value].length
+          const count = filteredIssues[status.value].length
 
           return (
             <button
@@ -68,7 +94,7 @@ export function BoardContent({ issues }: BoardContentProps) {
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {issueStatusOptions.map((status) => {
-          const statusIssues = issues[status.value]
+          const statusIssues = filteredIssues[status.value]
           const visibleOnMobile = activeStatus === status.value
 
           return (
@@ -139,13 +165,13 @@ export function BoardContent({ issues }: BoardContentProps) {
                   <div className="flex min-h-40 flex-col items-center justify-center px-5 text-center">
                     <Archive aria-hidden="true" className="mb-3 size-5 text-navy-400" />
                     <p className="text-sm font-medium text-navy-200">
-                      {issues.backlog.length + issues.todo.length + issues.in_progress.length + issues.done.length === 0
+                      {Object.values(filteredIssues).every((group) => group.length === 0)
                         ? 'Nenhuma issue encontrada'
                         : 'Nenhuma issue neste estado'}
                     </p>
                     <p className="mt-1 max-w-[220px] text-xs leading-5 text-navy-400">
-                      {issues.backlog.length + issues.todo.length + issues.in_progress.length + issues.done.length === 0
-                        ? 'Ajuste a busca ou crie uma nova issue.'
+                      {Object.values(filteredIssues).every((group) => group.length === 0)
+                        ? 'Ajuste a busca ou os filtros para ver issues.'
                         : 'Issues movidas para cá aparecerão nesta coluna.'}
                     </p>
                   </div>
