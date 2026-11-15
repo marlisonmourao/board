@@ -3,6 +3,7 @@ import {
   boolean,
   date,
   integer,
+  index,
   pgEnum,
   pgSequence,
   pgTable,
@@ -54,7 +55,7 @@ export const comments = pgTable("comments", {
   authorAvatar: text().notNull(),
   text: text().notNull(),
   createdAt: timestamp().notNull().defaultNow(),
-})
+}, (table) => [index('comments_issue_created_idx').on(table.issueId, table.createdAt)])
 
 export const issueActivity = pgTable("issue_activity", {
   id: uuid().primaryKey().defaultRandom(),
@@ -64,7 +65,7 @@ export const issueActivity = pgTable("issue_activity", {
   oldValue: text(),
   newValue: text(),
   createdAt: timestamp().notNull().defaultNow(),
-})
+}, (table) => [index('issue_activity_issue_created_idx').on(table.issueId, table.createdAt)])
 
 export const issueLikes = pgTable("issue_likes", {
   id: uuid().primaryKey().defaultRandom(),

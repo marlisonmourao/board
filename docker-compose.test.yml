@@ -1,0 +1,11 @@
+services:
+  postgres-test:
+    image: postgres:17
+    ports:
+      - '127.0.0.1:5433:5432'
+    environment:
+      POSTGRES_USER: board_test
+      POSTGRES_PASSWORD: board_test
+      POSTGRES_DB: board_test
+    tmpfs:
+      - /var/lib/postgresql/data

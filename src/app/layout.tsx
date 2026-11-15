@@ -2,6 +2,7 @@ import { ReactQueryProvider } from '@/lib/react-query'
 import type { Metadata } from 'next'
 import { IBM_Plex_Sans } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { Suspense } from 'react'
 import './globals.css'
 
 const plexSans = IBM_Plex_Sans({ subsets: ['latin'], variable: '--font-plex-sans' })
@@ -26,7 +27,7 @@ export default function RootLayout({
       <body className="bg-navy-950 text-navy-50 antialiased">
         <ReactQueryProvider>
           <NuqsAdapter>
-            {modal}
+            <Suspense fallback={null}>{modal}</Suspense>
             {children}
           </NuqsAdapter>
         </ReactQueryProvider>

@@ -78,3 +78,18 @@ pnpm dev
 ```
 
 Abra `http://localhost:3000` no seu navegador.
+
+### Testes
+
+Os testes usam um PostgreSQL temporário isolado na porta `5433` e iniciam o aplicativo de teste na porta `3100`. O banco de desenvolvimento não é usado. Cada execução recria o esquema do banco de teste e apaga seus dados.
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+pnpm exec playwright install chromium
+pnpm test
+docker compose -f docker-compose.test.yml stop
+```
+
+Para usar um Chrome já instalado, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` com o caminho do executável antes de executar os testes. As sessões de teste são criadas somente no banco isolado; o login GitHub real não é exercitado.
+
+O quadro continua carregando todas as issues. As consultas de comentários foram agrupadas e as interações são solicitadas em lotes, mas quadros muito grandes ainda consomem memória e tempo de renderização no navegador.

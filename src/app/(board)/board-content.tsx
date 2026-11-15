@@ -41,7 +41,7 @@ export function BoardContent({ issues }: BoardContentProps) {
   ]
 
   const { data: interactionsData } = useQuery({
-    queryKey: ['issue-likes', ...allIssuesIds.slice().sort().join(',')],
+    queryKey: ['issue-likes', allIssuesIds.slice().sort().join(',')],
     queryFn: () => getIssueInteractions({ issueIds: allIssuesIds }),
   })
 
@@ -58,13 +58,13 @@ export function BoardContent({ issues }: BoardContentProps) {
     <main className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3">
         <label className="space-y-1 text-xs text-navy-200">Prioridade
-          <Select value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="h-10 w-full min-w-40 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
+          <Select aria-label="Prioridade" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="h-10 w-full min-w-40 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
             <option value="">Todas as prioridades</option>
             {issuePriorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </Select>
         </label>
         <label className="space-y-1 text-xs text-navy-200">Responsável
-          <Select value={assigneeFilter} onChange={(event) => setAssigneeFilter(event.target.value)} className="h-10 w-full min-w-44 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
+          <Select aria-label="Responsável" value={assigneeFilter} onChange={(event) => setAssigneeFilter(event.target.value)} className="h-10 w-full min-w-44 rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 focus-visible:ring-2 focus-visible:ring-accent">
             <option value="">Todos os responsáveis</option>
             <option value="unassigned">Sem responsável</option>
             {assignees.map((person) => <option key={person.id} value={person.id}>{person.name}{assignees.filter((other) => other.name === person.name).length > 1 ? ` (${person.id.slice(0, 8)})` : ''}</option>)}

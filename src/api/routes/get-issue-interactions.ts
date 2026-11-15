@@ -11,7 +11,7 @@ const route = createRoute({
   request: {
     query: z.object({
       issueIds: z
-        .string()
+        .string().max(3699).refine((value) => value === '' || (value.split(',').length <= 100 && value.split(',').every((id) => z.uuidv4().safeParse(id).success)), 'Informe até 100 IDs válidos')
         .describe("Comma-separated list of issue IDs")
         .openapi({
           example:
@@ -56,7 +56,7 @@ export const getIssueInteractions = new OpenAPIHono<{
     .where(inArray(issues.id, issueIdArray))
 
   // If user is authenticated, get their likes
-  let userLikes: string[] = []
+  let userLikes = new Set<string>()
   if (user) {
     const likes = await db
       .select({ issueId: issueLikes.issueId })
@@ -68,12 +68,12 @@ export const getIssueInteractions = new OpenAPIHono<{
         ),
       )
 
-    userLikes = likes.map((like) => like.issueId)
+    userLikes = new Set(likes.map((like) => like.issueId))
   }
 
   const interactions = issuesData.map((issue) => ({
     issueId: issue.id,
-    isLiked: userLikes.includes(issue.id),
+    isLiked: userLikes.has(issue.id),
     likesCount: issue.likes,
   }))
 

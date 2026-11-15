@@ -1,0 +1,2 @@
+CREATE INDEX "comments_issue_created_idx" ON "comments" USING btree ("issue_id","created_at");--> statement-breakpoint
+CREATE INDEX "issue_activity_issue_created_idx" ON "issue_activity" USING btree ("issue_id","created_at");

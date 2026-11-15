@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { eq, ilike } from "drizzle-orm"
+import { and, eq, ilike, sql } from "drizzle-orm"
 import { db } from "../db"
 import { comments, issues, users } from "../db/schema"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
@@ -56,38 +56,30 @@ const route = createRoute({
 export const listIssues = new OpenAPIHono().openapi(route, async (c) => {
   const { status, search } = c.req.valid("query")
 
-  let query = db.select({ issue: issues, assignee: { id: users.id, name: users.name } }).from(issues).leftJoin(users, eq(issues.assigneeId, users.id))
+  const commentCounts = db
+    .select({ issueId: comments.issueId, count: sql<number>`count(*)::int`.as('comment_count') })
+    .from(comments)
+    .groupBy(comments.issueId)
+    .as('comment_counts')
+  const allIssues = await db
+    .select({ issue: issues, assignee: { id: users.id, name: users.name }, commentCount: sql<number>`coalesce(${commentCounts.count}, 0)::int` })
+    .from(issues)
+    .leftJoin(users, eq(issues.assigneeId, users.id))
+    .leftJoin(commentCounts, eq(commentCounts.issueId, issues.id))
+    .where(and(status ? eq(issues.status, status) : undefined, search ? ilike(issues.title, `%${search}%`) : undefined))
+    .orderBy(issues.issueNumber)
 
-  if (status) {
-    query = query.where(eq(issues.status, status)) as typeof query
-  }
-
-  if (search) {
-    query = query.where(ilike(issues.title, `%${search}%`)) as typeof query
-  }
-
-  const allIssues = await query
-
-  // Get comment counts for all issues
-  const issuesWithCounts = await Promise.all(
-    allIssues.map(async ({ issue, assignee }) => {
-      const commentCount = await db.$count(
-        comments,
-        eq(comments.issueId, issue.id),
-      )
-      return {
-        id: issue.id,
-        issueNumber: issue.issueNumber,
-        title: issue.title,
-        status: issue.status,
-        priority: issue.priority,
-        assignee,
-        labels: issue.labels,
-        dueDate: issue.dueDate,
-        comments: commentCount,
-      }
-    }),
-  )
+  const issuesWithCounts = allIssues.map(({ issue, assignee, commentCount }) => ({
+    id: issue.id,
+    issueNumber: issue.issueNumber,
+    title: issue.title,
+    status: issue.status,
+    priority: issue.priority,
+    assignee,
+    labels: issue.labels,
+    dueDate: issue.dueDate,
+    comments: commentCount,
+  }))
 
   const grouped = {
     backlog: issuesWithCounts.filter((issue) => issue.status === "backlog"),
