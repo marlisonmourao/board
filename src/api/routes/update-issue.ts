@@ -2,7 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { eq } from "drizzle-orm"
 import type { AuthSession } from "../auth"
 import { db } from "../db"
-import { comments, issues } from "../db/schema"
+import { comments, issues, issueActivity, users } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
 
@@ -90,11 +90,27 @@ export const updateIssue = app.openapi(route, async (c) => {
   const { id } = c.req.valid("param")
   const body = c.req.valid("json")
 
-  const [issue] = await db
-    .update(issues)
-    .set(body)
-    .where(eq(issues.id, id))
-    .returning()
+  const issue = await db.transaction(async (tx) => {
+    const [previous] = await tx.select().from(issues).where(eq(issues.id, id)).for('update')
+    if (!previous) return null
+
+    const [updated] = await tx.update(issues).set(body).where(eq(issues.id, id)).returning()
+    const actorName = c.get('user')!.name
+    const changes: { issueId: string; actorName: string; field: string; oldValue: string | null; newValue: string | null }[] = []
+    for (const field of ['title', 'description', 'status', 'priority'] as const) {
+      if (previous[field] !== updated[field]) changes.push({ issueId: id, actorName, field, oldValue: previous[field], newValue: updated[field] })
+    }
+    if (previous.assigneeId !== updated.assigneeId) {
+      const nameFor = async (userId: string | null) => {
+        if (!userId) return null
+        const [user] = await tx.select({ name: users.name }).from(users).where(eq(users.id, userId))
+        return user?.name ?? null
+      }
+      changes.push({ issueId: id, actorName, field: 'assignee', oldValue: await nameFor(previous.assigneeId), newValue: await nameFor(updated.assigneeId) })
+    }
+    if (changes.length) await tx.insert(issueActivity).values(changes)
+    return updated
+  })
 
   if (!issue) {
     return c.json(

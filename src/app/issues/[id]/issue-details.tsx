@@ -11,6 +11,10 @@ import { IssueLikeButton } from './issue-like-button'
 import { IssueEditor } from './issue-editor'
 import { DeleteIssueDialog } from './delete-issue-dialog'
 import { getIssuePriority } from '@/lib/issue-priority'
+import { getIssueStatus, type IssueStatus } from '@/lib/issue-status'
+import type { IssuePriority } from '@/lib/issue-priority'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 interface IssueDetailsProps {
   issueId: string
@@ -49,6 +53,30 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
       <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} assignee={issue.assignee} isAuthenticated={isAuthenticated} />
 
       <p className="text-sm text-navy-200">Responsável: {issue.assignee?.name ?? 'Sem responsável'}</p>
+
+      <section aria-labelledby="activity-heading" className="space-y-3 border-t border-navy-600 pt-5">
+        <h2 id="activity-heading" className="font-semibold text-navy-50">Histórico</h2>
+        {issue.activity.length === 0 ? <p className="text-sm text-navy-300">Nenhuma alteração registrada.</p> : (
+          <ol className="space-y-3">
+            {issue.activity.map((entry) => {
+              const fields: Record<string, string> = { title: 'título', description: 'descrição', status: 'estado', priority: 'prioridade', assignee: 'responsável' }
+              const label = (value: string | null) => {
+                if (!value) return 'Sem responsável'
+                if (entry.field === 'status') return getIssueStatus(value as IssueStatus)?.label ?? value
+                if (entry.field === 'priority') return getIssuePriority(value as IssuePriority)?.label ?? value
+                return value
+              }
+              return (
+                <li key={entry.id} className="text-sm text-navy-200">
+                  <span className="font-medium text-navy-100">{entry.actorName}</span> alterou {fields[entry.field] ?? entry.field}
+                  {entry.field !== 'description' && <> de <span className="text-navy-50">{label(entry.oldValue)}</span> para <span className="text-navy-50">{label(entry.newValue)}</span></>}
+                  <time dateTime={entry.createdAt} className="mt-1 block text-xs text-navy-300">{format(new Date(entry.createdAt), "dd 'de' MMM 'de' yyyy 'às' HH:mm", { locale: ptBR })}</time>
+                </li>
+              )
+            })}
+          </ol>
+        )}
+      </section>
 
       <section aria-labelledby="comments-heading" className="flex flex-col gap-3 border-t border-navy-600 pt-5">
         <h2 id="comments-heading" className="font-semibold text-navy-50">Comentários</h2>

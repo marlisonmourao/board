@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { eq } from "drizzle-orm"
+import { desc, eq } from "drizzle-orm"
 import { db } from "../db"
-import { comments, issues, users } from "../db/schema"
+import { comments, issues, issueActivity, users } from "../db/schema"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
 import { AssigneeSchema } from "@/lib/assignee"
 
@@ -21,6 +21,7 @@ export const IssueSchema = z.object({
   priority: IssuePrioritySchema,
   assignee: AssigneeSchema.nullable(),
   comments: z.number().int(),
+  activity: z.array(z.object({ id: z.uuidv4(), actorName: z.string(), field: z.string(), oldValue: z.string().nullable(), newValue: z.string().nullable(), createdAt: z.string().datetime() })),
   createdAt: z.string().datetime(),
 })
 
@@ -80,6 +81,7 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
   const { issue, assignee } = result
 
   const commentCount = await db.$count(comments, eq(comments.issueId, id))
+  const activity = await db.select().from(issueActivity).where(eq(issueActivity.issueId, id)).orderBy(desc(issueActivity.createdAt), desc(issueActivity.id))
 
   return c.json(
     {
@@ -91,6 +93,7 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
       priority: issue.priority,
       assignee,
       comments: commentCount,
+      activity: activity.map(({ id, actorName, field, oldValue, newValue, createdAt }) => ({ id, actorName, field, oldValue, newValue, createdAt: createdAt.toISOString() })),
       createdAt: issue.createdAt.toISOString(),
     },
     200,

@@ -51,6 +51,16 @@ export const comments = pgTable("comments", {
   createdAt: timestamp().notNull().defaultNow(),
 })
 
+export const issueActivity = pgTable("issue_activity", {
+  id: uuid().primaryKey().defaultRandom(),
+  issueId: uuid().notNull().references(() => issues.id, { onDelete: "cascade" }),
+  actorName: text().notNull(),
+  field: text().notNull(),
+  oldValue: text(),
+  newValue: text(),
+  createdAt: timestamp().notNull().defaultNow(),
+})
+
 export const issueLikes = pgTable("issue_likes", {
   id: uuid().primaryKey().defaultRandom(),
   issueId: uuid()
