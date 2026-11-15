@@ -5,12 +5,13 @@ import { comments, issues } from "../db/schema"
 
 export const CommentAuthorSchema = z.object({
   name: z.string(),
-  avatar: z.url(),
+  avatar: z.string(),
 })
 
 export const CommentSchema = z.object({
   id: z.uuidv4(),
   issueId: z.uuidv4(),
+  authorId: z.uuidv4().nullable(),
   author: CommentAuthorSchema,
   text: z.string(),
   createdAt: z.string().datetime(),
@@ -99,6 +100,7 @@ export const listIssueComments = new OpenAPIHono().openapi(route, async (c) => {
       comments: issueComments.map((comment) => ({
         id: comment.id,
         issueId: comment.issueId,
+        authorId: comment.authorId,
         author: {
           name: comment.authorName,
           avatar: comment.authorAvatar,

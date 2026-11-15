@@ -91,7 +91,7 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
 
         <div className="mt-3">
           <Suspense fallback={<IssueCommentSkeleton />}>
-            <IssueCommentList issueId={issue.id} />
+            <IssueCommentList issueId={issue.id} userId={session?.user?.id} />
           </Suspense>
         </div>
       </section>

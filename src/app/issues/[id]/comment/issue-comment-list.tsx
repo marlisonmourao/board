@@ -3,12 +3,14 @@ import { listIssuesComments } from "@/http/list-issue-comments"
 
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { CommentActions } from './comment-actions'
 
 interface IssueCommentListProps {
   issueId: string
+  userId?: string
 }
 
-export async function IssueCommentList({ issueId }: IssueCommentListProps) {
+export async function IssueCommentList({ issueId, userId }: IssueCommentListProps) {
   const { comments } = await listIssuesComments({ issueId })
 
   if (comments.length === 0) {
@@ -37,6 +39,7 @@ export async function IssueCommentList({ issueId }: IssueCommentListProps) {
               </Comment.Time>
             </Comment.Header>
             <Comment.Text>{comment.text}</Comment.Text>
+            {userId && comment.authorId === userId && <CommentActions issueId={issueId} commentId={comment.id} text={comment.text} />}
           </Comment.Content>
         </Comment.Root>
       ))}

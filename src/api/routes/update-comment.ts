@@ -1,17 +1,17 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import { eq } from "drizzle-orm"
+import { and, eq } from "drizzle-orm"
 import type { AuthSession } from "../auth"
 import { db } from "../db"
-import { comments, users } from "../db/schema"
+import { comments } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 
 const UpdateCommentSchema = z.object({
-  text: z.string().min(1),
+  text: z.string().trim().min(1),
 })
 
 const CommentAuthorSchema = z.object({
   name: z.string(),
-  avatar: z.url(),
+  avatar: z.string(),
 })
 
 const CommentSchema = z.object({
@@ -96,7 +96,7 @@ const app = new OpenAPIHono<{
 }>()
 
 export const updateComment = app.openapi(route, async (c) => {
-  const { commentId } = c.req.valid("param")
+  const { issueId, commentId } = c.req.valid("param")
   const body = c.req.valid("json")
   const user = c.get("user")
 
@@ -104,7 +104,7 @@ export const updateComment = app.openapi(route, async (c) => {
   const [existingComment] = await db
     .select()
     .from(comments)
-    .where(eq(comments.id, commentId))
+    .where(and(eq(comments.id, commentId), eq(comments.issueId, issueId)))
 
   if (!existingComment) {
     return c.json(
@@ -117,12 +117,7 @@ export const updateComment = app.openapi(route, async (c) => {
   }
 
   // Check if user is the author
-  const [author] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, user!.email))
-
-  if (existingComment.authorName !== author.name) {
+  if (!existingComment.authorId || existingComment.authorId !== user!.id) {
     return c.json(
       {
         error: "Unauthorized",
@@ -135,7 +130,7 @@ export const updateComment = app.openapi(route, async (c) => {
   const [comment] = await db
     .update(comments)
     .set({ text: body.text })
-    .where(eq(comments.id, commentId))
+    .where(and(eq(comments.id, commentId), eq(comments.issueId, issueId), eq(comments.authorId, user!.id)))
     .returning()
 
   return c.json(

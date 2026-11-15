@@ -49,6 +49,7 @@ export const comments = pgTable("comments", {
     .notNull()
     .references(() => issues.id, { onDelete: "cascade" }),
   authorName: text().notNull(),
+  authorId: uuid().references(() => users.id, { onDelete: "set null" }),
   authorAvatar: text().notNull(),
   text: text().notNull(),
   createdAt: timestamp().notNull().defaultNow(),

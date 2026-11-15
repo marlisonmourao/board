@@ -36,6 +36,13 @@
       "when": 1794714663389,
       "tag": "0004_fluffy_doctor_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794714763895,
+      "tag": "0005_warm_giant_girl",
+      "breakpoints": true
     }
   ]
 }

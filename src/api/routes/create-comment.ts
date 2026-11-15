@@ -6,12 +6,12 @@ import { comments, issues } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 
 export const CreateCommentSchema = z.object({
-  text: z.string().min(1),
+  text: z.string().trim().min(1),
 })
 
 export const CommentAuthorSchema = z.object({
   name: z.string(),
-  avatar: z.url(),
+  avatar: z.string(),
 })
 
 export const CommentSchema = z.object({
@@ -106,6 +106,7 @@ export const createComment = app.openapi(route, async (c) => {
     .values({
       issueId: id,
       authorName: user!.name,
+      authorId: user!.id,
       authorAvatar: user!.image || "",
       text: body.text,
     })
