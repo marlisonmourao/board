@@ -35,6 +35,7 @@ export const issues = pgTable("issues", {
   description: text().notNull(),
   status: issueStatusEnum().notNull().default("backlog"),
   priority: issuePriorityEnum().notNull().default("medium"),
+  assigneeId: uuid().references(() => users.id, { onDelete: "set null" }),
   likes: integer().notNull().default(0),
   createdAt: timestamp().notNull().defaultNow(),
 })

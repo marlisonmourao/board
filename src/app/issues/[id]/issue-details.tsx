@@ -46,7 +46,9 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
         {isAuthenticated && <div className="ml-auto"><DeleteIssueDialog id={issue.id} issueNumber={issue.issueNumber} /></div>}
       </div>
 
-      <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} isAuthenticated={isAuthenticated} />
+      <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} assignee={issue.assignee} isAuthenticated={isAuthenticated} />
+
+      <p className="text-sm text-navy-200">Responsável: {issue.assignee?.name ?? 'Sem responsável'}</p>
 
       <section aria-labelledby="comments-heading" className="flex flex-col gap-3 border-t border-navy-600 pt-5">
         <h2 id="comments-heading" className="font-semibold text-navy-50">Comentários</h2>

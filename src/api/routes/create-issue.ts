@@ -12,6 +12,7 @@ const CreateIssueSchema = z.object({
   description: z.string().min(1),
   status: IssueStatusSchema.optional().default("backlog"),
   priority: IssuePrioritySchema.optional().default("medium"),
+  assigneeId: z.uuidv4().nullable().optional(),
 })
 
 const IssueSchema = z.object({
@@ -21,6 +22,7 @@ const IssueSchema = z.object({
   description: z.string(),
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
+  assigneeId: z.uuidv4().nullable(),
   likes: z.number().int(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
@@ -85,6 +87,7 @@ export const createIssue = app.openapi(route, async (c) => {
       description: body.description,
       status: body.status,
       priority: body.priority,
+      assigneeId: body.assigneeId,
     })
     .returning()
 
@@ -96,6 +99,7 @@ export const createIssue = app.openapi(route, async (c) => {
       description: issue.description,
       status: issue.status,
       priority: issue.priority,
+      assigneeId: issue.assigneeId,
       likes: issue.likes,
       comments: 0,
       createdAt: issue.createdAt.toISOString(),

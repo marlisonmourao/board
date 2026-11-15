@@ -13,6 +13,7 @@ const UpdateIssueSchema = z.object({
   description: z.string().min(1).optional(),
   status: IssueStatusSchema.optional(),
   priority: IssuePrioritySchema.optional(),
+  assigneeId: z.uuidv4().nullable().optional(),
 })
 
 const IssueSchema = z.object({
@@ -22,6 +23,7 @@ const IssueSchema = z.object({
   description: z.string(),
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
+  assigneeId: z.uuidv4().nullable(),
   likes: z.number().int(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
@@ -114,6 +116,7 @@ export const updateIssue = app.openapi(route, async (c) => {
       description: issue.description,
       status: issue.status,
       priority: issue.priority,
+      assigneeId: issue.assigneeId,
       likes: issue.likes,
       comments: commentCount,
       createdAt: issue.createdAt.toISOString(),

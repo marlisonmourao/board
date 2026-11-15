@@ -100,6 +100,7 @@ export function BoardContent({ issues }: BoardContentProps) {
                             <Card.Number>ISS-{issue.issueNumber}</Card.Number>
                             <Card.Title>{issue.title}</Card.Title>
                             <span className={`text-xs ${priority.color}`}>Prioridade {priority.label.toLowerCase()}</span>
+                            <span className="text-xs text-navy-300">Responsável: {issue.assignee?.name ?? 'Sem responsável'}</span>
                           </Card.Header>
                         </Card.Link>
 

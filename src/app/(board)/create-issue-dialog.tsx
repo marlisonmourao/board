@@ -4,6 +4,7 @@ import { createIssueAction } from '@/actions/issues'
 import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Select } from '@/components/select'
+import { AssigneeSelect } from '@/components/assignee-select'
 import { authClient } from '@/lib/auth-client'
 import { issueStatusOptions, type IssueStatus } from '@/lib/issue-status'
 import { useHydrated } from '@/lib/use-hydrated'
@@ -20,9 +21,11 @@ export function CreateIssueDialog() {
   const [open, setOpen] = useState(false)
   const [status, setStatus] = useState<IssueStatus>('backlog')
   const [error, setError] = useState('')
+  const [assigneesReady, setAssigneesReady] = useState(false)
   const [isSaving, startTransition] = useTransition()
 
   function handleOpenChange(nextOpen: boolean) {
+    if (nextOpen) setAssigneesReady(false)
     setOpen(nextOpen)
     if (!nextOpen) {
       setError('')
@@ -46,6 +49,7 @@ export function CreateIssueDialog() {
           description: formData.get('description'),
           status,
           priority: formData.get('priority'),
+          assigneeId: formData.get('assigneeId') || null,
         })
 
         if (!result.ok) {
@@ -158,6 +162,8 @@ export function CreateIssueDialog() {
               </Select>
             </label>
 
+            <AssigneeSelect onReady={setAssigneesReady} />
+
             {error && (
               <p role="alert" className="text-sm text-amber-300">
                 {error}
@@ -172,7 +178,7 @@ export function CreateIssueDialog() {
               </Dialog.Close>
               <Button
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || !assigneesReady}
                 className="justify-center bg-accent text-navy-950 hover:bg-accent/90"
               >
                 {isSaving ? (

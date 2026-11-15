@@ -1,8 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { eq } from "drizzle-orm"
 import { db } from "../db"
-import { comments, issues } from "../db/schema"
+import { comments, issues, users } from "../db/schema"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
+import { AssigneeSchema } from "@/lib/assignee"
 
 export const IssueStatusSchema = z.enum([
   "backlog",
@@ -18,6 +19,7 @@ export const IssueSchema = z.object({
   description: z.string(),
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
+  assignee: AssigneeSchema.nullable(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
 })
@@ -63,9 +65,9 @@ const route = createRoute({
 export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
   const { id } = c.req.valid("param")
 
-  const [issue] = await db.select().from(issues).where(eq(issues.id, id))
+  const [result] = await db.select({ issue: issues, assignee: { id: users.id, name: users.name } }).from(issues).leftJoin(users, eq(issues.assigneeId, users.id)).where(eq(issues.id, id))
 
-  if (!issue) {
+  if (!result) {
     return c.json(
       {
         error: "Issue not found",
@@ -74,6 +76,8 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
       404,
     )
   }
+
+  const { issue, assignee } = result
 
   const commentCount = await db.$count(comments, eq(comments.issueId, id))
 
@@ -85,6 +89,7 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
       description: issue.description,
       status: issue.status,
       priority: issue.priority,
+      assignee,
       comments: commentCount,
       createdAt: issue.createdAt.toISOString(),
     },

@@ -1,6 +1,9 @@
 'use server'
 
-import { IssueSchema } from '@/api/routes/get-issue'
+import { auth } from '@/api/auth'
+import { db } from '@/api/db'
+import { users } from '@/api/db/schema'
+import { asc } from 'drizzle-orm'
 import { IssueStatusSchema } from '@/api/routes/list-issues'
 import { clientEnv } from '@/env'
 import { getCookiesFromHeaders } from '@/http/utils/get-cookies-from-headers'
@@ -14,6 +17,7 @@ const CreateIssueInputSchema = z.object({
   description: z.string().trim().min(1),
   status: IssueStatusSchema,
   priority: IssuePrioritySchema.default('medium'),
+  assigneeId: z.uuidv4().nullable().optional(),
 })
 
 const UpdateIssueInputSchema = z.object({
@@ -26,6 +30,7 @@ const EditIssueInputSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
   priority: IssuePrioritySchema,
+  assigneeId: z.uuidv4().nullable(),
 })
 
 export type IssueStatus = z.infer<typeof IssueStatusSchema>
@@ -55,7 +60,7 @@ async function requestIssue(path: string, method: 'POST' | 'PATCH', body: unknow
   }
 
   const data = await response.json()
-  IssueSchema.parse(data)
+  z.object({ id: z.uuidv4() }).parse(data)
   updateTag('issues')
 
   return { ok: true as const }
@@ -89,8 +94,14 @@ export async function editIssueAction(input: unknown): Promise<IssueActionResult
     return { ok: false, message: 'Preencha título e descrição.' }
   }
 
-  const { id, title, description, priority } = parsed.data
-  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description, priority })
+  const { id, title, description, priority, assigneeId } = parsed.data
+  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description, priority, assigneeId })
+}
+
+export async function listAssigneesAction() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) throw new Error('Authentication required')
+  return db.select({ id: users.id, name: users.name }).from(users).orderBy(asc(users.name), asc(users.id))
 }
 
 export async function deleteIssueAction(input: unknown): Promise<IssueActionResult> {
