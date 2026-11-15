@@ -1,6 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
+import type { AuthSession } from "../auth"
 import { db } from "../db"
 import { issues } from "../db/schema"
+import { requireAuth } from "../middlewares/auth"
 
 const IssueStatusSchema = z.enum(["backlog", "todo", "in_progress", "done"])
 
@@ -29,6 +31,7 @@ const ErrorSchema = z.object({
 const route = createRoute({
   method: "post",
   path: "/issues",
+  middleware: [requireAuth],
   request: {
     body: {
       content: {
@@ -55,10 +58,21 @@ const route = createRoute({
       },
       description: "Validation failed",
     },
+    401: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Authentication required",
+    },
   },
 })
 
-export const createIssue = new OpenAPIHono().openapi(route, async (c) => {
+const app = new OpenAPIHono<{
+  Variables: {
+    user: AuthSession["user"] | null
+    session: AuthSession["session"] | null
+  }
+}>()
+
+export const createIssue = app.openapi(route, async (c) => {
   const body = c.req.valid("json")
 
   const [issue] = await db

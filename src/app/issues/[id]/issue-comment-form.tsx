@@ -4,10 +4,11 @@ import { Input } from '@/components/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2Icon, MessageCirclePlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import z from 'zod'
 
 const createCommentSchema = z.object({
-  text: z.string().min(1, 'Comment cannot be empty'),
+  text: z.string().trim().min(1, 'Escreva um comentário antes de publicar.'),
 })
 
 type CreateCommentSchema = z.infer<typeof createCommentSchema>
@@ -21,6 +22,7 @@ export function IssueCommentForm({
   onCreateComment,
   isAuthenticated,
 }: IssueCommentProps) {
+  const [submitError, setSubmitError] = useState('')
   const {
     register,
     handleSubmit,
@@ -31,8 +33,13 @@ export function IssueCommentForm({
   })
 
   async function handleCreateComment(data: CreateCommentSchema) {
-    await onCreateComment(data.text)
-    reset()
+    setSubmitError('')
+    try {
+      await onCreateComment(data.text)
+      reset()
+    } catch {
+      setSubmitError('Não foi possível publicar o comentário. Tente de novo.')
+    }
   }
 
   return (
@@ -41,26 +48,29 @@ export function IssueCommentForm({
       onSubmit={handleSubmit(handleCreateComment)}
     >
       <Input
-        className="bg-navy-900 h-11 pr-24 w-full"
+        aria-label="Escreva um comentário"
+        className="h-11 w-full bg-navy-900 pr-28"
         placeholder={
           isAuthenticated
-            ? 'Leave a comment...'
-            : 'You must be logged in to comment'
+            ? 'Escreva um comentário…'
+            : 'Entre para comentar'
         }
         disabled={!isAuthenticated || isSubmitting}
         {...register('text')}
       />
 
-      {errors.text?.message && (
-        <span className="text-red-400 text-xs mt-1">{errors.text.message}</span>
+      {(errors.text?.message || submitError) && (
+        <span role="alert" className="mt-1 block text-xs text-amber-300">
+          {submitError || 'Escreva um comentário antes de publicar.'}
+        </span>
       )}
 
       <button
         type="submit"
         disabled={isSubmitting || !isAuthenticated}
-        className="flex items-center gap-2 text-indigo-400 absolute right-3 top-1/2 -translate-y-1/2 text-xs hover:text-indigo-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute right-3 top-1/2 flex -translate-y-1/2 cursor-pointer items-center gap-2 text-xs text-accent hover:text-navy-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Publish
+        Comentar
         {isSubmitting ? (
           <Loader2Icon className="size-3 animate-spin" />
         ) : (

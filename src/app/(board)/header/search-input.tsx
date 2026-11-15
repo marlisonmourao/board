@@ -20,12 +20,13 @@ export function SearchInput() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0 flex-1 sm:w-[280px] sm:flex-none">
       <SearchIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-navy-200 pointer-events-none" />
       <Input
         type="text"
-        placeholder="Search for features..."
-        className="w-[270px] pl-8"
+        placeholder="Buscar issues..."
+        aria-label="Buscar issues"
+        className="w-full pl-8"
         value={search}
         onChange={(e) => handleSearchUpdate(e)}
       />

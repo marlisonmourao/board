@@ -3,6 +3,7 @@ import { toggleLike } from '@/http/toggle-like'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ThumbsUpIcon } from 'lucide-react'
 import type { ComponentProps, MouseEvent } from 'react'
+import { twMerge } from 'tailwind-merge'
 import type z from 'zod'
 import { Button } from './button'
 
@@ -18,6 +19,7 @@ export function LikeButton({
   issueId,
   initialLikes,
   initialLiked,
+  className,
   ...props
 }: LikeButtonProps) {
   const queryClient = useQueryClient()
@@ -76,8 +78,11 @@ export function LikeButton({
   return (
     <Button
       data-liked={liked}
-      className="data-[liked=true]:bg-indigo-600 data-[liked=true]:text-white data-[liked=true]:hover:bg-indigo-500"
-      aria-label={liked ? 'Unlike' : 'Like'}
+      className={twMerge(
+        'data-[liked=true]:bg-accent-strong data-[liked=true]:text-white data-[liked=true]:hover:bg-accent-strong/90',
+        className,
+      )}
+      aria-label={liked ? 'Descurtir issue' : 'Curtir issue'}
       onClick={handleToggleLike}
       disabled={isPending}
       {...props}

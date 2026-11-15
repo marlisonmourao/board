@@ -4,13 +4,13 @@ import Link from "next/link"
 
 export default function IssuesLoading() {
   return (
-    <main className="max-w-[900px] mx-auto w-full flex flex-col gap-4 p-6 bg-navy-800 border-[0.5px] border-navy-500 rounded-xl">
+    <main className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 rounded-xl border border-navy-600 bg-navy-800/80 p-5 sm:p-8">
       <Link
         href="/"
         className="flex items-center gap-2 text-navy-200 hover:text-navy-100 transition-colors"
       >
         <MoveLeftIcon className="size-4" />
-        <span className="text-xs">Back to board</span>
+        <span className="text-xs">Voltar ao quadro</span>
       </Link>
 
       <div className="flex items-center gap-2">

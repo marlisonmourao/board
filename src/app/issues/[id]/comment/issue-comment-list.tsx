@@ -2,6 +2,7 @@ import { Comment } from "@/components/comment"
 import { listIssuesComments } from "@/http/list-issue-comments"
 
 import { formatDistanceToNow } from "date-fns"
+import { ptBR } from "date-fns/locale"
 
 interface IssueCommentListProps {
   issueId: string
@@ -14,7 +15,7 @@ export async function IssueCommentList({ issueId }: IssueCommentListProps) {
     return (
       <div className="space-y-3">
         <p className="text-navy-400 text-sm text-center py-2">
-          No comments yet
+          Ainda não há comentários. Seja a primeira pessoa a comentar.
         </p>
       </div>
     )
@@ -29,7 +30,10 @@ export async function IssueCommentList({ issueId }: IssueCommentListProps) {
             <Comment.Header>
               <Comment.Author>{comment.author.name}</Comment.Author>
               <Comment.Time>
-                {formatDistanceToNow(comment.createdAt, { addSuffix: true })}
+                {formatDistanceToNow(new Date(comment.createdAt), {
+                  addSuffix: true,
+                  locale: ptBR,
+                })}
               </Comment.Time>
             </Comment.Header>
             <Comment.Text>{comment.text}</Comment.Text>

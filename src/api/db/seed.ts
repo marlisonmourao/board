@@ -1,45 +1,45 @@
 import "dotenv/config"
-import { faker } from "@faker-js/faker"
+import { fakerPT_BR as faker } from "@faker-js/faker"
 import { sql } from "drizzle-orm"
 import { db } from "./index"
 import { comments, issues } from "./schema"
 
 const issueNames = [
-  "Add dark mode support",
-  "Fix responsive layout on mobile",
-  "Implement user authentication",
-  "Update dependencies to latest versions",
-  "Add unit tests for API endpoints",
-  "Improve page load performance",
-  "Fix memory leak in dashboard",
-  "Add keyboard shortcuts",
-  "Implement search functionality",
-  "Add export to CSV feature",
-  "Fix timezone handling",
-  "Add email notifications",
-  "Improve error messages",
-  "Add documentation for API",
-  "Fix security vulnerability in auth",
-  "Add analytics dashboard",
-  "Implement real-time updates",
-  "Add multi-language support",
-  "Fix layout shift issues",
-  "Add drag and drop support",
-  "Optimize database queries",
-  "Add pagination to lists",
-  "Fix color contrast issues",
-  "Add offline mode support",
-  "Implement caching strategy",
-  "Add rate limiting",
-  "Fix cross-browser compatibility",
-  "Add accessibility features",
-  "Improve mobile navigation",
-  "Add image optimization",
-  "Fix date picker bug",
-  "Add bulk actions",
-  "Implement webhooks",
-  "Add custom themes",
-  "Fix validation errors",
+  "Adicionar suporte ao tema escuro",
+  "Corrigir layout em celulares",
+  "Implementar autenticação de usuários",
+  "Atualizar dependências do projeto",
+  "Adicionar testes para a API",
+  "Melhorar o tempo de carregamento",
+  "Corrigir vazamento de memória no painel",
+  "Adicionar atalhos de teclado",
+  "Implementar busca de issues",
+  "Adicionar exportação para CSV",
+  "Corrigir fuso horário das datas",
+  "Adicionar notificações por e-mail",
+  "Melhorar mensagens de erro",
+  "Documentar a API",
+  "Corrigir falha de segurança na autenticação",
+  "Adicionar painel de métricas",
+  "Implementar atualizações em tempo real",
+  "Adicionar suporte a outros idiomas",
+  "Corrigir mudanças inesperadas no layout",
+  "Adicionar suporte a arrastar e soltar",
+  "Otimizar consultas ao banco de dados",
+  "Adicionar paginação às listas",
+  "Corrigir contraste das cores",
+  "Adicionar modo offline",
+  "Implementar cache de dados",
+  "Adicionar limite de requisições",
+  "Corrigir compatibilidade entre navegadores",
+  "Melhorar acessibilidade",
+  "Melhorar navegação em celulares",
+  "Otimizar imagens",
+  "Corrigir seletor de datas",
+  "Adicionar ações em lote",
+  "Implementar webhooks",
+  "Adicionar temas personalizados",
+  "Corrigir erros de validação",
 ]
 
 async function main() {
@@ -66,7 +66,7 @@ async function main() {
       .insert(issues)
       .values({
         title: randomTitle,
-        description: `Description for ${randomTitle}`,
+        description: `Descrição para: ${randomTitle}.`,
         status: randomStatus,
         likes: randomLikes,
       })
@@ -76,9 +76,9 @@ async function main() {
     for (let j = 0; j < 5; j++) {
       await db.insert(comments).values({
         issueId: issue.id,
-        authorName: `User ${j + 1}`,
+        authorName: `Pessoa ${j + 1}`,
         authorAvatar: `https://i.pravatar.cc/150?u=${j}`,
-        text: `This is comment ${j + 1} for issue ${issue.issueNumber}`,
+        text: `Este é o comentário ${j + 1} da issue ${issue.issueNumber}.`,
       })
     }
   }

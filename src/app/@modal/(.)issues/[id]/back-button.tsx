@@ -14,10 +14,10 @@ export function BackButton() {
     <button
       type="button"
       onClick={handleBack}
-      className="flex items-center gap-2 cursor-pointer text-navy-200 hover:text-navy-100 transition-colors"
+      className="flex w-fit items-center gap-2 cursor-pointer rounded-sm text-navy-200 outline-none transition-colors hover:text-navy-100 focus-visible:ring-2 focus-visible:ring-accent"
     >
       <MoveLeftIcon className="size-4" />
-      <span className="text-xs">Back to board</span>
+      <span className="text-xs">Voltar ao quadro</span>
     </button>
   )
 }

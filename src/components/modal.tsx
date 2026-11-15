@@ -18,10 +18,10 @@ export function Modal({ className, ...props }: ModalProps) {
   return (
     <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50" />
+      <Dialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <Dialog.Content
           className={twMerge(
-            'fixed right-0 top-0 z-60 w-full h-full max-w-[540px] bg-navy-950 overflow-y-auto border border-navy-900',
+            'fixed right-0 top-0 z-60 h-full w-full max-w-[640px] overflow-y-auto border-l border-navy-600 bg-navy-950',
             className,
           )}
           {...props}

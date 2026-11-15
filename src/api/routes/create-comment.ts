@@ -37,6 +37,7 @@ const ParamsSchema = z.object({
 const route = createRoute({
   method: "post",
   path: "/issues/{id}/comments",
+  middleware: [requireAuth],
   request: {
     params: ParamsSchema,
     body: {
@@ -81,8 +82,6 @@ const app = new OpenAPIHono<{
     session: AuthSession["session"] | null
   }
 }>()
-
-app.use(requireAuth)
 
 export const createComment = app.openapi(route, async (c) => {
   const { id } = c.req.valid("param")

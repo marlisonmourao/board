@@ -24,6 +24,7 @@ const ParamsSchema = z.object({
 const route = createRoute({
   method: "delete",
   path: "/issues/{issueId}/comments/{commentId}",
+  middleware: [requireAuth],
   request: {
     params: ParamsSchema,
   },
@@ -64,8 +65,6 @@ const app = new OpenAPIHono<{
     session: AuthSession["session"] | null
   }
 }>()
-
-app.use(requireAuth)
 
 export const deleteComment = app.openapi(route, async (c) => {
   const { commentId } = c.req.valid("param")

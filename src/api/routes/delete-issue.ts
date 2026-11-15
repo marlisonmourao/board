@@ -1,7 +1,9 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { eq } from "drizzle-orm"
+import type { AuthSession } from "../auth"
 import { db } from "../db"
 import { issues } from "../db/schema"
+import { requireAuth } from "../middlewares/auth"
 
 const ErrorSchema = z.object({
   error: z.string(),
@@ -18,6 +20,7 @@ const ParamsSchema = z.object({
 const route = createRoute({
   method: "delete",
   path: "/issues/{id}",
+  middleware: [requireAuth],
   request: {
     params: ParamsSchema,
   },
@@ -33,10 +36,21 @@ const route = createRoute({
       },
       description: "Issue not found",
     },
+    401: {
+      content: { "application/json": { schema: ErrorSchema } },
+      description: "Authentication required",
+    },
   },
 })
 
-export const deleteIssue = new OpenAPIHono().openapi(route, async (c) => {
+const app = new OpenAPIHono<{
+  Variables: {
+    user: AuthSession["user"] | null
+    session: AuthSession["session"] | null
+  }
+}>()
+
+export const deleteIssue = app.openapi(route, async (c) => {
   const { id } = c.req.valid("param")
 
   const result = await db.delete(issues).where(eq(issues.id, id)).returning()

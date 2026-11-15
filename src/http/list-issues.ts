@@ -1,6 +1,6 @@
 import { IssuesListResponseSchema } from '@/api/routes/list-issues'
 import { clientEnv } from '@/env'
-import { cacheLife } from 'next/cache'
+import { cacheLife, cacheTag } from 'next/cache'
 
 interface ListIssueParams {
   search?: string
@@ -10,6 +10,7 @@ export async function listIssues({ search }: ListIssueParams = {}) {
   'use cache'
 
   cacheLife('default')
+  cacheTag('issues')
   const url = new URL('/api/issues', clientEnv.NEXT_PUBLIC_API_URL)
 
   if (search) {

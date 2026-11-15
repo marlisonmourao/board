@@ -1,17 +1,17 @@
 import { ReactQueryProvider } from '@/lib/react-query'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Sans } from 'next/font/google'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const plexSans = IBM_Plex_Sans({ subsets: ['latin'], variable: '--font-plex-sans' })
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Product Roadmap',
-    default: 'Product Roadmap',
+    template: '%s | Quadro do produto',
+    default: 'Quadro do produto',
   },
-  description: 'Follow the development progress of our antire plataform',
+  description: 'Acompanhe o que está em andamento e o que vem a seguir.',
 }
 
 export default function RootLayout({
@@ -22,7 +22,7 @@ export default function RootLayout({
   modal: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={inter.className}>
+    <html lang="pt-BR" className={plexSans.className}>
       <body className="bg-navy-950 text-navy-50 antialiased">
         <ReactQueryProvider>
           <NuqsAdapter>

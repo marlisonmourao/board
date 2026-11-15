@@ -23,7 +23,7 @@ export async function IssueImage({ params }: IssueImageProps) {
         flexDirection: 'column',
         alignItems: 'flex-start',
         justifyContent: 'flex-end',
-        background: '#16161B',
+        background: '#101720',
         padding: '80px',
       }}
     >
@@ -31,16 +31,16 @@ export async function IssueImage({ params }: IssueImageProps) {
         style={{
           fontSize: 48,
           fontWeight: 600,
-          color: '#9397aa',
+          color: '#9aabbc',
         }}
       >
-        ISS {issue.issueNumber}
+        ISS-{issue.issueNumber}
       </p>
       <p
         style={{
           fontSize: 72,
           fontWeight: 700,
-          color: '#ecedf2',
+          color: '#edf2f5',
           textAlign: 'center',
           maxWidth: 1000,
         }}

@@ -13,7 +13,7 @@ export const generateMetadata = async ({ params }: IssuePageProps) => {
   const issue = await getIssue({ id })
 
   return {
-    title: `Issue: ${issue.title}`,
+    title: `Detalhes: ${issue.title}`,
   }
 }
 
@@ -21,13 +21,13 @@ export default async function IssuePage({ params }: IssuePageProps) {
   const { id } = await params
 
   return (
-    <main className="max-w-[900px] mx-auto w-full flex flex-col gap-4 p-6 bg-navy-800 border-[0.5px] border-navy-500 rounded-xl">
+    <main className="mx-auto flex w-full max-w-[1000px] flex-col gap-6 rounded-xl border border-navy-600 bg-navy-800/80 p-5 sm:p-8">
       <Link
         href="/"
-        className="flex items-center gap-2 text-navy-200 hover:text-navy-100 transition-colors"
+        className="flex w-fit items-center gap-2 rounded-sm text-navy-200 outline-none transition-colors hover:text-navy-100 focus-visible:ring-2 focus-visible:ring-accent"
       >
         <MoveLeftIcon className="size-4" />
-        <span className="text-xs">Back to board</span>
+        <span className="text-xs">Voltar ao quadro</span>
       </Link>
 
       <IssueDetails issueId={id} />

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { BoardContent } from './board-content'
 
 export const metadata: Metadata = {
-  title: 'Board',
+  title: 'Quadro',
 }
 
 interface BoardProps {

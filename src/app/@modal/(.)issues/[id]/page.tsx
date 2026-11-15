@@ -15,7 +15,7 @@ export default async function IssueModal({ params }: IssueModalParams) {
       <div className="flex flex-col gap-4 p-6">
         <BackButton />
 
-        <DialogTitle className="sr-only">Issue details</DialogTitle>
+        <DialogTitle className="sr-only">Detalhes da issue</DialogTitle>
         <IssueDetails issueId={id} />
       </div>
     </Modal>
