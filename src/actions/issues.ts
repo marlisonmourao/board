@@ -19,6 +19,12 @@ const UpdateIssueInputSchema = z.object({
   status: IssueStatusSchema,
 })
 
+const EditIssueInputSchema = z.object({
+  id: z.uuidv4(),
+  title: z.string().trim().min(1),
+  description: z.string().trim().min(1),
+})
+
 export type IssueStatus = z.infer<typeof IssueStatusSchema>
 
 export type IssueActionResult =
@@ -72,4 +78,14 @@ export async function updateIssueStatusAction(input: unknown): Promise<IssueActi
   return requestIssue(`/api/issues/${parsed.data.id}`, 'PATCH', {
     status: parsed.data.status,
   })
+}
+
+export async function editIssueAction(input: unknown): Promise<IssueActionResult> {
+  const parsed = EditIssueInputSchema.safeParse(input)
+  if (!parsed.success) {
+    return { ok: false, message: 'Preencha título e descrição.' }
+  }
+
+  const { id, title, description } = parsed.data
+  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description })
 }

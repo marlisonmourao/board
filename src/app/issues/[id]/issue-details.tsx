@@ -8,6 +8,7 @@ import { IssueCommentList } from './comment/issue-comment-list'
 import { IssueCommentSkeleton } from './comment/issue-comment-skeleton'
 import { IssueCommentForm } from './issue-comment-form'
 import { IssueLikeButton } from './issue-like-button'
+import { IssueEditor } from './issue-editor'
 
 interface IssueDetailsProps {
   issueId: string
@@ -40,14 +41,7 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
         <IssueLikeButton issueId={issue.id} />
       </div>
 
-      <div className="space-y-2">
-        <h1 className="max-w-[48rem] text-2xl font-semibold tracking-tight text-navy-50 sm:text-3xl">
-          {issue.title}
-        </h1>
-        <p className="max-w-[72ch] text-sm leading-7 text-navy-200">
-          {issue.description}
-        </p>
-      </div>
+      <IssueEditor id={issue.id} title={issue.title} description={issue.description} isAuthenticated={isAuthenticated} />
 
       <section aria-labelledby="comments-heading" className="flex flex-col gap-3 border-t border-navy-600 pt-5">
         <h2 id="comments-heading" className="font-semibold text-navy-50">Comentários</h2>
