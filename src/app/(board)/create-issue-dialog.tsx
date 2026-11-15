@@ -7,6 +7,7 @@ import { Select } from '@/components/select'
 import { authClient } from '@/lib/auth-client'
 import { issueStatusOptions, type IssueStatus } from '@/lib/issue-status'
 import { useHydrated } from '@/lib/use-hydrated'
+import { issuePriorityOptions } from '@/lib/issue-priority'
 import * as Dialog from '@radix-ui/react-dialog'
 import { LoaderCircle, Plus, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -44,6 +45,7 @@ export function CreateIssueDialog() {
           title: formData.get('title'),
           description: formData.get('description'),
           status,
+          priority: formData.get('priority'),
         })
 
         if (!result.ok) {
@@ -146,6 +148,13 @@ export function CreateIssueDialog() {
                     {option.label}
                   </option>
                 ))}
+              </Select>
+            </label>
+
+            <label className="block space-y-2 text-sm font-medium text-navy-100">
+              Prioridade
+              <Select name="priority" defaultValue="medium" className="h-10 w-full rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30">
+                {issuePriorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </Select>
             </label>
 

@@ -23,6 +23,8 @@ export const issueStatusEnum = pgEnum("issue_status", [
   "done",
 ])
 
+export const issuePriorityEnum = pgEnum("issue_priority", ["low", "medium", "high", "urgent"])
+
 export const issues = pgTable("issues", {
   id: uuid().primaryKey().defaultRandom(),
   issueNumber: integer()
@@ -32,6 +34,7 @@ export const issues = pgTable("issues", {
   title: text().notNull(),
   description: text().notNull(),
   status: issueStatusEnum().notNull().default("backlog"),
+  priority: issuePriorityEnum().notNull().default("medium"),
   likes: integer().notNull().default(0),
   createdAt: timestamp().notNull().defaultNow(),
 })

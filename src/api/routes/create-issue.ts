@@ -3,6 +3,7 @@ import type { AuthSession } from "../auth"
 import { db } from "../db"
 import { issues } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
+import { IssuePrioritySchema } from "@/lib/issue-priority"
 
 const IssueStatusSchema = z.enum(["backlog", "todo", "in_progress", "done"])
 
@@ -10,6 +11,7 @@ const CreateIssueSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   status: IssueStatusSchema.optional().default("backlog"),
+  priority: IssuePrioritySchema.optional().default("medium"),
 })
 
 const IssueSchema = z.object({
@@ -18,6 +20,7 @@ const IssueSchema = z.object({
   title: z.string(),
   description: z.string(),
   status: IssueStatusSchema,
+  priority: IssuePrioritySchema,
   likes: z.number().int(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
@@ -81,6 +84,7 @@ export const createIssue = app.openapi(route, async (c) => {
       title: body.title,
       description: body.description,
       status: body.status,
+      priority: body.priority,
     })
     .returning()
 
@@ -91,6 +95,7 @@ export const createIssue = app.openapi(route, async (c) => {
       title: issue.title,
       description: issue.description,
       status: issue.status,
+      priority: issue.priority,
       likes: issue.likes,
       comments: 0,
       createdAt: issue.createdAt.toISOString(),

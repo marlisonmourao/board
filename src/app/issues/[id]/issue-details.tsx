@@ -10,6 +10,7 @@ import { IssueCommentForm } from './issue-comment-form'
 import { IssueLikeButton } from './issue-like-button'
 import { IssueEditor } from './issue-editor'
 import { DeleteIssueDialog } from './delete-issue-dialog'
+import { getIssuePriority } from '@/lib/issue-priority'
 
 interface IssueDetailsProps {
   issueId: string
@@ -25,6 +26,7 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
   })
 
   const isAuthenticated = !!session?.user
+  const priority = getIssuePriority(issue.priority)
 
   async function handleCreateComment(text: string) {
     'use server'
@@ -39,11 +41,12 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
           ISS-{issue.issueNumber}
         </span>
         <IssueStatusSelect issueId={issue.id} status={issue.status} />
+        <span className={`text-xs ${priority.color}`}>Prioridade {priority.label.toLowerCase()}</span>
         <IssueLikeButton issueId={issue.id} />
         {isAuthenticated && <div className="ml-auto"><DeleteIssueDialog id={issue.id} issueNumber={issue.issueNumber} /></div>}
       </div>
 
-      <IssueEditor id={issue.id} title={issue.title} description={issue.description} isAuthenticated={isAuthenticated} />
+      <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} isAuthenticated={isAuthenticated} />
 
       <section aria-labelledby="comments-heading" className="flex flex-col gap-3 border-t border-navy-600 pt-5">
         <h2 id="comments-heading" className="font-semibold text-navy-50">Comentários</h2>

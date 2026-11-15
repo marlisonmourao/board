@@ -7,11 +7,13 @@ import { getCookiesFromHeaders } from '@/http/utils/get-cookies-from-headers'
 import { updateTag } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
+import { IssuePrioritySchema } from '@/lib/issue-priority'
 
 const CreateIssueInputSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
   status: IssueStatusSchema,
+  priority: IssuePrioritySchema.default('medium'),
 })
 
 const UpdateIssueInputSchema = z.object({
@@ -23,6 +25,7 @@ const EditIssueInputSchema = z.object({
   id: z.uuidv4(),
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
+  priority: IssuePrioritySchema,
 })
 
 export type IssueStatus = z.infer<typeof IssueStatusSchema>
@@ -86,8 +89,8 @@ export async function editIssueAction(input: unknown): Promise<IssueActionResult
     return { ok: false, message: 'Preencha título e descrição.' }
   }
 
-  const { id, title, description } = parsed.data
-  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description })
+  const { id, title, description, priority } = parsed.data
+  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description, priority })
 }
 
 export async function deleteIssueAction(input: unknown): Promise<IssueActionResult> {

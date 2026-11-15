@@ -6,6 +6,7 @@ import { LikeButton } from '@/components/like-button'
 import { Section } from '@/components/section'
 import { IssueStatusSelect } from '@/components/issue-status-select'
 import { getIssueStatus, issueStatusOptions } from '@/lib/issue-status'
+import { getIssuePriority } from '@/lib/issue-priority'
 import { getIssueInteractions } from '@/http/get-issue-interections'
 import { useQuery } from '@tanstack/react-query'
 import { Archive, MessageCircle } from 'lucide-react'
@@ -90,6 +91,7 @@ export function BoardContent({ issues }: BoardContentProps) {
                   statusIssues.map((issue) => {
                     const interaction = interactions.get(issue.id)
                     const issueStatus = getIssueStatus(issue.status)
+                    const priority = getIssuePriority(issue.priority)
 
                     return (
                       <Card.Root key={issue.id}>
@@ -97,6 +99,7 @@ export function BoardContent({ issues }: BoardContentProps) {
                           <Card.Header>
                             <Card.Number>ISS-{issue.issueNumber}</Card.Number>
                             <Card.Title>{issue.title}</Card.Title>
+                            <span className={`text-xs ${priority.color}`}>Prioridade {priority.label.toLowerCase()}</span>
                           </Card.Header>
                         </Card.Link>
 

@@ -3,6 +3,8 @@
 import { editIssueAction } from '@/actions/issues'
 import { Button } from '@/components/button'
 import { Input } from '@/components/input'
+import { Select } from '@/components/select'
+import { issuePriorityOptions, type IssuePriority } from '@/lib/issue-priority'
 import { Pencil } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition, type FormEvent } from 'react'
@@ -11,10 +13,11 @@ interface IssueEditorProps {
   id: string
   title: string
   description: string
+  priority: IssuePriority
   isAuthenticated: boolean
 }
 
-export function IssueEditor({ id, title, description, isAuthenticated }: IssueEditorProps) {
+export function IssueEditor({ id, title, description, priority, isAuthenticated }: IssueEditorProps) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +29,7 @@ export function IssueEditor({ id, title, description, isAuthenticated }: IssueEd
     setError('')
     startTransition(async () => {
       try {
-        const result = await editIssueAction({ id, title: data.get('title'), description: data.get('description') })
+        const result = await editIssueAction({ id, title: data.get('title'), description: data.get('description'), priority: data.get('priority') })
         if (!result.ok) {
           setError(result.message)
           return
@@ -49,6 +52,12 @@ export function IssueEditor({ id, title, description, isAuthenticated }: IssueEd
         <label className="block space-y-2 text-sm font-medium text-navy-100">
           Descrição
           <textarea name="description" defaultValue={description} required rows={5} className="w-full resize-y rounded-md border border-navy-500 bg-navy-900 px-3 py-2.5 text-sm leading-6 text-navy-50 outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30" />
+        </label>
+        <label className="block space-y-2 text-sm font-medium text-navy-100">
+          Prioridade
+          <Select name="priority" defaultValue={priority} className="h-10 w-full rounded-md border border-navy-500 bg-navy-900 pl-3 pr-10 text-sm text-navy-50 outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/30">
+            {issuePriorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </Select>
         </label>
         {error && <p role="alert" className="text-sm text-amber-300">{error}</p>}
         <div className="flex flex-wrap gap-2">

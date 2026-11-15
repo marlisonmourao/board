@@ -2,6 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import { eq } from "drizzle-orm"
 import { db } from "../db"
 import { comments, issues } from "../db/schema"
+import { IssuePrioritySchema } from "@/lib/issue-priority"
 
 export const IssueStatusSchema = z.enum([
   "backlog",
@@ -16,6 +17,7 @@ export const IssueSchema = z.object({
   title: z.string(),
   description: z.string(),
   status: IssueStatusSchema,
+  priority: IssuePrioritySchema,
   comments: z.number().int(),
   createdAt: z.string().datetime(),
 })
@@ -82,6 +84,7 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
       title: issue.title,
       description: issue.description,
       status: issue.status,
+      priority: issue.priority,
       comments: commentCount,
       createdAt: issue.createdAt.toISOString(),
     },
