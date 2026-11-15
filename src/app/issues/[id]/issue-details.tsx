@@ -9,6 +9,7 @@ import { IssueCommentSkeleton } from './comment/issue-comment-skeleton'
 import { IssueCommentForm } from './issue-comment-form'
 import { IssueLikeButton } from './issue-like-button'
 import { IssueEditor } from './issue-editor'
+import { DeleteIssueDialog } from './delete-issue-dialog'
 
 interface IssueDetailsProps {
   issueId: string
@@ -39,6 +40,7 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
         </span>
         <IssueStatusSelect issueId={issue.id} status={issue.status} />
         <IssueLikeButton issueId={issue.id} />
+        {isAuthenticated && <div className="ml-auto"><DeleteIssueDialog id={issue.id} issueNumber={issue.issueNumber} /></div>}
       </div>
 
       <IssueEditor id={issue.id} title={issue.title} description={issue.description} isAuthenticated={isAuthenticated} />

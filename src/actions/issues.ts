@@ -89,3 +89,20 @@ export async function editIssueAction(input: unknown): Promise<IssueActionResult
   const { id, title, description } = parsed.data
   return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description })
 }
+
+export async function deleteIssueAction(input: unknown): Promise<IssueActionResult> {
+  const parsed = z.uuidv4().safeParse(input)
+  if (!parsed.success) return { ok: false, message: 'Issue inválida.' }
+
+  const response = await fetch(new URL(`/api/issues/${parsed.data}`, clientEnv.NEXT_PUBLIC_API_URL), {
+    method: 'DELETE',
+    headers: getCookiesFromHeaders(await headers()),
+  })
+
+  if (response.status === 401) return { ok: false, message: 'Entre para excluir issues.', loginRequired: true }
+  if (response.status === 404) return { ok: false, message: 'Esta issue não existe mais.' }
+  if (!response.ok) return { ok: false, message: 'Não foi possível excluir a issue. Tente de novo.' }
+
+  updateTag('issues')
+  return { ok: true }
+}
