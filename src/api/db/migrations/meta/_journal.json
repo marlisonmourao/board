@@ -29,6 +29,13 @@
       "when": 1794714304881,
       "tag": "0003_foamy_master_mold",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794714663389,
+      "tag": "0004_fluffy_doctor_spectrum",
+      "breakpoints": true
     }
   ]
 }

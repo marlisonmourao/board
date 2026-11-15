@@ -4,6 +4,7 @@ import { db } from "../db"
 import { comments, issues, issueActivity, users } from "../db/schema"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
 import { AssigneeSchema } from "@/lib/assignee"
+import { LabelsSchema, DueDateSchema } from "@/lib/issue-planning"
 
 export const IssueStatusSchema = z.enum([
   "backlog",
@@ -20,6 +21,8 @@ export const IssueSchema = z.object({
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
   assignee: AssigneeSchema.nullable(),
+  labels: LabelsSchema,
+  dueDate: DueDateSchema,
   comments: z.number().int(),
   activity: z.array(z.object({ id: z.uuidv4(), actorName: z.string(), field: z.string(), oldValue: z.string().nullable(), newValue: z.string().nullable(), createdAt: z.string().datetime() })),
   createdAt: z.string().datetime(),
@@ -92,6 +95,8 @@ export const getIssue = new OpenAPIHono().openapi(route, async (c) => {
       status: issue.status,
       priority: issue.priority,
       assignee,
+      labels: issue.labels,
+      dueDate: issue.dueDate,
       comments: commentCount,
       activity: activity.map(({ id, actorName, field, oldValue, newValue, createdAt }) => ({ id, actorName, field, oldValue, newValue, createdAt: createdAt.toISOString() })),
       createdAt: issue.createdAt.toISOString(),

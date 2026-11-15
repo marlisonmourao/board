@@ -5,6 +5,7 @@ import { Card } from '@/components/card'
 import { LikeButton } from '@/components/like-button'
 import { Section } from '@/components/section'
 import { Select } from '@/components/select'
+import { IssuePlanningDisplay } from '@/components/issue-planning-fields'
 import { IssueStatusSelect } from '@/components/issue-status-select'
 import { getIssueStatus, issueStatusOptions } from '@/lib/issue-status'
 import { getIssuePriority, issuePriorityOptions } from '@/lib/issue-priority'
@@ -127,6 +128,7 @@ export function BoardContent({ issues }: BoardContentProps) {
                             <Card.Title>{issue.title}</Card.Title>
                             <span className={`text-xs ${priority.color}`}>Prioridade {priority.label.toLowerCase()}</span>
                             <span className="text-xs text-navy-300">Responsável: {issue.assignee?.name ?? 'Sem responsável'}</span>
+                            <IssuePlanningDisplay labels={issue.labels} dueDate={issue.dueDate} />
                           </Card.Header>
                         </Card.Link>
 

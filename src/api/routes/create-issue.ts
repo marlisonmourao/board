@@ -4,6 +4,7 @@ import { db } from "../db"
 import { issues } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
+import { LabelsSchema, DueDateSchema } from "@/lib/issue-planning"
 
 const IssueStatusSchema = z.enum(["backlog", "todo", "in_progress", "done"])
 
@@ -13,6 +14,8 @@ const CreateIssueSchema = z.object({
   status: IssueStatusSchema.optional().default("backlog"),
   priority: IssuePrioritySchema.optional().default("medium"),
   assigneeId: z.uuidv4().nullable().optional(),
+  labels: LabelsSchema.optional().default([]),
+  dueDate: DueDateSchema.optional().default(null),
 })
 
 const IssueSchema = z.object({
@@ -23,6 +26,8 @@ const IssueSchema = z.object({
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
   assigneeId: z.uuidv4().nullable(),
+  labels: LabelsSchema,
+  dueDate: DueDateSchema,
   likes: z.number().int(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
@@ -88,6 +93,8 @@ export const createIssue = app.openapi(route, async (c) => {
       status: body.status,
       priority: body.priority,
       assigneeId: body.assigneeId,
+      labels: body.labels,
+      dueDate: body.dueDate,
     })
     .returning()
 
@@ -100,6 +107,8 @@ export const createIssue = app.openapi(route, async (c) => {
       status: issue.status,
       priority: issue.priority,
       assigneeId: issue.assigneeId,
+      labels: issue.labels,
+      dueDate: issue.dueDate,
       likes: issue.likes,
       comments: 0,
       createdAt: issue.createdAt.toISOString(),

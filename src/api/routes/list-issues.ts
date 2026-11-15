@@ -4,6 +4,7 @@ import { db } from "../db"
 import { comments, issues, users } from "../db/schema"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
 import { AssigneeSchema } from "@/lib/assignee"
+import { LabelsSchema, DueDateSchema } from "@/lib/issue-planning"
 
 export const IssueStatusSchema = z.enum([
   "backlog",
@@ -19,6 +20,8 @@ export const IssueCardSchema = z.object({
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
   assignee: AssigneeSchema.nullable(),
+  labels: LabelsSchema,
+  dueDate: DueDateSchema,
   comments: z.number().int(),
 })
 
@@ -79,6 +82,8 @@ export const listIssues = new OpenAPIHono().openapi(route, async (c) => {
         status: issue.status,
         priority: issue.priority,
         assignee,
+        labels: issue.labels,
+        dueDate: issue.dueDate,
         comments: commentCount,
       }
     }),

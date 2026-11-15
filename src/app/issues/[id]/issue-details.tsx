@@ -11,6 +11,7 @@ import { IssueLikeButton } from './issue-like-button'
 import { IssueEditor } from './issue-editor'
 import { DeleteIssueDialog } from './delete-issue-dialog'
 import { getIssuePriority } from '@/lib/issue-priority'
+import { IssuePlanningDisplay } from '@/components/issue-planning-fields'
 import { getIssueStatus, type IssueStatus } from '@/lib/issue-status'
 import type { IssuePriority } from '@/lib/issue-priority'
 import { format } from 'date-fns'
@@ -50,7 +51,8 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
         {isAuthenticated && <div className="ml-auto"><DeleteIssueDialog id={issue.id} issueNumber={issue.issueNumber} /></div>}
       </div>
 
-      <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} assignee={issue.assignee} isAuthenticated={isAuthenticated} />
+      <IssueEditor id={issue.id} title={issue.title} description={issue.description} priority={issue.priority} assignee={issue.assignee} labels={issue.labels} dueDate={issue.dueDate} isAuthenticated={isAuthenticated} />
+      <IssuePlanningDisplay labels={issue.labels} dueDate={issue.dueDate} />
 
       <p className="text-sm text-navy-200">Responsável: {issue.assignee?.name ?? 'Sem responsável'}</p>
 
@@ -59,9 +61,10 @@ export async function IssueDetails({ issueId }: IssueDetailsProps) {
         {issue.activity.length === 0 ? <p className="text-sm text-navy-300">Nenhuma alteração registrada.</p> : (
           <ol className="space-y-3">
             {issue.activity.map((entry) => {
-              const fields: Record<string, string> = { title: 'título', description: 'descrição', status: 'estado', priority: 'prioridade', assignee: 'responsável' }
+              const fields: Record<string, string> = { title: 'título', description: 'descrição', status: 'estado', priority: 'prioridade', assignee: 'responsável', labels: 'etiquetas', dueDate: 'prazo' }
               const label = (value: string | null) => {
-                if (!value) return 'Sem responsável'
+                if (!value) return entry.field === 'assignee' ? 'Sem responsável' : 'Não definido'
+                if (entry.field === 'dueDate') return value.split('-').reverse().join('/')
                 if (entry.field === 'status') return getIssueStatus(value as IssueStatus)?.label ?? value
                 if (entry.field === 'priority') return getIssuePriority(value as IssuePriority)?.label ?? value
                 return value

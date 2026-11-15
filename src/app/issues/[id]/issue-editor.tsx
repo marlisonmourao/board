@@ -5,6 +5,8 @@ import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Select } from '@/components/select'
 import { AssigneeSelect } from '@/components/assignee-select'
+import { IssuePlanningFields } from '@/components/issue-planning-fields'
+import { parseLabels } from '@/lib/issue-planning'
 import type { Assignee } from '@/lib/assignee'
 import { issuePriorityOptions, type IssuePriority } from '@/lib/issue-priority'
 import { Pencil } from 'lucide-react'
@@ -17,10 +19,12 @@ interface IssueEditorProps {
   description: string
   priority: IssuePriority
   assignee: Assignee | null
+  labels: string[]
+  dueDate: string | null
   isAuthenticated: boolean
 }
 
-export function IssueEditor({ id, title, description, priority, assignee, isAuthenticated }: IssueEditorProps) {
+export function IssueEditor({ id, title, description, priority, assignee, labels, dueDate, isAuthenticated }: IssueEditorProps) {
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
@@ -33,7 +37,7 @@ export function IssueEditor({ id, title, description, priority, assignee, isAuth
     setError('')
     startTransition(async () => {
       try {
-        const result = await editIssueAction({ id, title: data.get('title'), description: data.get('description'), priority: data.get('priority'), assigneeId: data.get('assigneeId') || null })
+        const result = await editIssueAction({ id, title: data.get('title'), description: data.get('description'), priority: data.get('priority'), assigneeId: data.get('assigneeId') || null, labels: parseLabels(data.get('labels')), dueDate: data.get('dueDate') || null })
         if (!result.ok) {
           setError(result.message)
           return
@@ -64,6 +68,7 @@ export function IssueEditor({ id, title, description, priority, assignee, isAuth
           </Select>
         </label>
         <AssigneeSelect value={assignee?.id} onReady={setAssigneesReady} />
+        <IssuePlanningFields labels={labels} dueDate={dueDate} />
         {error && <p role="alert" className="text-sm text-amber-300">{error}</p>}
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={saving || !assigneesReady} className="bg-accent text-navy-950 hover:bg-accent/90">{saving ? 'Salvando…' : 'Salvar alterações'}</Button>

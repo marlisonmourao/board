@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm"
 import {
   boolean,
+  date,
   integer,
   pgEnum,
   pgSequence,
@@ -36,6 +37,8 @@ export const issues = pgTable("issues", {
   status: issueStatusEnum().notNull().default("backlog"),
   priority: issuePriorityEnum().notNull().default("medium"),
   assigneeId: uuid().references(() => users.id, { onDelete: "set null" }),
+  labels: text().array().notNull().default(sql`'{}'::text[]`),
+  dueDate: date(),
   likes: integer().notNull().default(0),
   createdAt: timestamp().notNull().defaultNow(),
 })

@@ -5,6 +5,8 @@ import { Button } from '@/components/button'
 import { Input } from '@/components/input'
 import { Select } from '@/components/select'
 import { AssigneeSelect } from '@/components/assignee-select'
+import { IssuePlanningFields } from '@/components/issue-planning-fields'
+import { parseLabels } from '@/lib/issue-planning'
 import { authClient } from '@/lib/auth-client'
 import { issueStatusOptions, type IssueStatus } from '@/lib/issue-status'
 import { useHydrated } from '@/lib/use-hydrated'
@@ -50,6 +52,8 @@ export function CreateIssueDialog() {
           status,
           priority: formData.get('priority'),
           assigneeId: formData.get('assigneeId') || null,
+          labels: parseLabels(formData.get('labels')),
+          dueDate: formData.get('dueDate') || null,
         })
 
         if (!result.ok) {
@@ -163,6 +167,7 @@ export function CreateIssueDialog() {
             </label>
 
             <AssigneeSelect onReady={setAssigneesReady} />
+            <IssuePlanningFields />
 
             {error && (
               <p role="alert" className="text-sm text-amber-300">

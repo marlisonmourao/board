@@ -5,6 +5,7 @@ import { db } from "../db"
 import { comments, issues, issueActivity, users } from "../db/schema"
 import { requireAuth } from "../middlewares/auth"
 import { IssuePrioritySchema } from "@/lib/issue-priority"
+import { LabelsSchema, DueDateSchema } from "@/lib/issue-planning"
 
 const IssueStatusSchema = z.enum(["backlog", "todo", "in_progress", "done"])
 
@@ -14,6 +15,8 @@ const UpdateIssueSchema = z.object({
   status: IssueStatusSchema.optional(),
   priority: IssuePrioritySchema.optional(),
   assigneeId: z.uuidv4().nullable().optional(),
+  labels: LabelsSchema.optional(),
+  dueDate: DueDateSchema.optional(),
 })
 
 const IssueSchema = z.object({
@@ -24,6 +27,8 @@ const IssueSchema = z.object({
   status: IssueStatusSchema,
   priority: IssuePrioritySchema,
   assigneeId: z.uuidv4().nullable(),
+  labels: LabelsSchema,
+  dueDate: DueDateSchema,
   likes: z.number().int(),
   comments: z.number().int(),
   createdAt: z.string().datetime(),
@@ -100,6 +105,8 @@ export const updateIssue = app.openapi(route, async (c) => {
     for (const field of ['title', 'description', 'status', 'priority'] as const) {
       if (previous[field] !== updated[field]) changes.push({ issueId: id, actorName, field, oldValue: previous[field], newValue: updated[field] })
     }
+    if (previous.dueDate !== updated.dueDate) changes.push({ issueId: id, actorName, field: 'dueDate', oldValue: previous.dueDate, newValue: updated.dueDate })
+    if (JSON.stringify(previous.labels) !== JSON.stringify(updated.labels)) changes.push({ issueId: id, actorName, field: 'labels', oldValue: previous.labels.join(', '), newValue: updated.labels.join(', ') })
     if (previous.assigneeId !== updated.assigneeId) {
       const nameFor = async (userId: string | null) => {
         if (!userId) return null
@@ -133,6 +140,8 @@ export const updateIssue = app.openapi(route, async (c) => {
       status: issue.status,
       priority: issue.priority,
       assigneeId: issue.assigneeId,
+      labels: issue.labels,
+      dueDate: issue.dueDate,
       likes: issue.likes,
       comments: commentCount,
       createdAt: issue.createdAt.toISOString(),

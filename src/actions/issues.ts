@@ -11,6 +11,7 @@ import { updateTag } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { IssuePrioritySchema } from '@/lib/issue-priority'
+import { LabelsSchema, DueDateSchema } from '@/lib/issue-planning'
 
 const CreateIssueInputSchema = z.object({
   title: z.string().trim().min(1),
@@ -18,6 +19,8 @@ const CreateIssueInputSchema = z.object({
   status: IssueStatusSchema,
   priority: IssuePrioritySchema.default('medium'),
   assigneeId: z.uuidv4().nullable().optional(),
+  labels: LabelsSchema.default([]),
+  dueDate: DueDateSchema.default(null),
 })
 
 const UpdateIssueInputSchema = z.object({
@@ -31,6 +34,8 @@ const EditIssueInputSchema = z.object({
   description: z.string().trim().min(1),
   priority: IssuePrioritySchema,
   assigneeId: z.uuidv4().nullable(),
+  labels: LabelsSchema,
+  dueDate: DueDateSchema,
 })
 
 export type IssueStatus = z.infer<typeof IssueStatusSchema>
@@ -70,7 +75,7 @@ export async function createIssueAction(input: unknown): Promise<IssueActionResu
   const parsed = CreateIssueInputSchema.safeParse(input)
 
   if (!parsed.success) {
-    return { ok: false, message: 'Preencha título e descrição.' }
+    return { ok: false, message: 'Confira o título, a descrição, as etiquetas e o prazo.' }
   }
 
   return requestIssue('/api/issues', 'POST', parsed.data)
@@ -91,11 +96,11 @@ export async function updateIssueStatusAction(input: unknown): Promise<IssueActi
 export async function editIssueAction(input: unknown): Promise<IssueActionResult> {
   const parsed = EditIssueInputSchema.safeParse(input)
   if (!parsed.success) {
-    return { ok: false, message: 'Preencha título e descrição.' }
+    return { ok: false, message: 'Confira o título, a descrição, as etiquetas e o prazo.' }
   }
 
-  const { id, title, description, priority, assigneeId } = parsed.data
-  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description, priority, assigneeId })
+  const { id, title, description, priority, assigneeId, labels, dueDate } = parsed.data
+  return requestIssue(`/api/issues/${id}`, 'PATCH', { title, description, priority, assigneeId, labels, dueDate })
 }
 
 export async function listAssigneesAction() {
